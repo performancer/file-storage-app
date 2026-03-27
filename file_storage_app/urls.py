@@ -23,4 +23,5 @@ urlpatterns = [
     path('files/', include('files.urls')),
     path('organizations/', include('organizations.urls')),
     path('users/', include('users.urls')),
+    path('', include('downloads.urls')),
 ]

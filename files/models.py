@@ -4,9 +4,11 @@ from django.db import models
 
 from organizations.models import Organization
 
+
 def upload_path(instance, filename):
     ext = filename.split('.')[-1]
     return f'media/organizations/{instance.organization.id}/{instance.owner.id}/{uuid.uuid4()}.{ext}'
+
 
 class File(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -17,3 +19,6 @@ class File(models.Model):
 
     class Meta:
         ordering = ['created']
+
+    def __str__(self):
+        return f"{self.file}"
