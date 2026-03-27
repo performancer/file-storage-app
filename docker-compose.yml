@@ -18,7 +18,7 @@ services:
       db:
           condition: service_healthy
   db:
-    image: postgres:13
+    image: postgres:18
     environment:
       POSTGRES_DB: file_storage_app
       POSTGRES_USER: file_storage_app_user
@@ -26,7 +26,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgres
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U file_storage_app_user -d file_storage_app -h db"]
       interval: 5s
