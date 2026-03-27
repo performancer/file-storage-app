@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from downloads import models
 from downloads.serializers import DownloadSerializer
 from files.models import File
+from organizations.permissions import IsInOrganization
 from users.models import OrganizationUser
 
 class DownloadsPerUser(generics.GenericAPIView):
@@ -36,7 +37,7 @@ class DownloadsPerFile(generics.GenericAPIView):
         return Response(serializer.data)
 
 class Download(generics.GenericAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsInOrganization]
 
     def get(self, request, pk, *args, **kwargs):
         try:
