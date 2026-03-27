@@ -12,3 +12,7 @@
 ### Create a superuser
 
 ```docker compose run web python manage.py createsuperuser```
+
+### Run the tests
+
+```docker compose run web python manage.py test```
