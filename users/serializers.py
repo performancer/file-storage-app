@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'organization', 'files']
 
-    def get_organization(self, obj):
+    def get_organization(self, obj: User):
         try:
             org_user = OrganizationUser.objects.get(user=obj)
             return OrganizationSerializer(org_user.organization).data

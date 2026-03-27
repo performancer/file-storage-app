@@ -18,18 +18,18 @@ class FileSerializer(serializers.ModelSerializer):
         model = File
         fields = ['id', 'file', 'file_name', 'download_url', 'download_count', 'created', 'owner', 'organization']
 
-    def get_file_name(self, obj):
+    def get_file_name(self, obj: File) -> str:
         return os.path.basename(obj.file.name)
 
-    def get_download_url(self, obj):
+    def get_download_url(self, obj: File) -> str:
         request = self.context.get('request')
         url = reverse('download', args=[obj.pk])
         return request.build_absolute_uri(url) if request else url
 
-    def get_download_count(self, obj):
+    def get_download_count(self, obj: File) -> int:
         return obj.downloads.count()
 
-    def validate(self, attrs):
+    def validate(self, attrs: dict) -> dict:
         user = self.context['request'].user
 
         try:

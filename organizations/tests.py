@@ -115,7 +115,7 @@ class TestOrganizationDownloads(TestCase):
 
         self._test_download_count(2)
 
-    def _test_download_count(self, download_count):
+    def _test_download_count(self, download_count: int):
         response = self.client.get(self.organizations_url)
         organization = [org for org in response.data if org['id'] == self.organization_a.id][0]
         self.assertEqual(organization.get('download_count'), download_count)

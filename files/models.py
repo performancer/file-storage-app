@@ -5,7 +5,7 @@ from django.db import models
 from organizations.models import Organization
 
 
-def upload_path(instance, filename):
+def upload_path(instance, filename: str) -> str:
     ext = filename.split('.')[-1]
     return f'media/organizations/{instance.organization.id}/{instance.owner.id}/{uuid.uuid4()}.{ext}'
 

@@ -12,7 +12,7 @@ class FileList(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated, IsInOrganization]
     parser_classes = [MultiPartParser, FormParser]
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer: FileSerializer):
         serializer.save(owner=self.request.user)
 
 class FileDetail(generics.RetrieveAPIView):

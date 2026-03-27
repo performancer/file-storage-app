@@ -10,5 +10,5 @@ class OrganizationSerializer(serializers.ModelSerializer):
         model = Organization
         fields = ['id', 'name', 'created', 'download_count']
 
-    def get_download_count(self, obj):
+    def get_download_count(self, obj: Organization):
         return obj.downloads.count()

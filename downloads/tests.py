@@ -218,6 +218,7 @@ class TestDownloadsPerFile(APITestCase):
     def test_no_other_file_downloads_included(self):
         self.client.login(username=self.user_a.username, password='password123')
         self.client.get(self.download_url)
+        self.client.logout()
 
         # upload and download a second file
         self.second_uploaded_file_id = FileTestingHelper.upload_test_file(
@@ -226,6 +227,8 @@ class TestDownloadsPerFile(APITestCase):
             username=self.user_a.username,
             password='password123',
         )
+
+        self.client.login(username=self.user_a.username, password='password123')
         self.client.get(f'/download/{self.second_uploaded_file_id}')
 
         # make sure dealing with another file does not affect the downloads of the first file
