@@ -1,14 +1,22 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from files.models import File
+from files.serializers import FileSerializer
+from organizations.serializers import OrganizationSerializer
+from users.models import OrganizationUser
 
 
 class UserSerializer(serializers.ModelSerializer):
-    files = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=File.objects.all()
-    )
+    organization = serializers.SerializerMethodField()
+    files = FileSerializer(many=True, read_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'files']
+        fields = ['id', 'username', 'organization', 'files']
+
+    def get_organization(self, obj):
+        try:
+            org_user = OrganizationUser.objects.get(user=obj)
+            return OrganizationSerializer(org_user.organization).data
+        except OrganizationUser.DoesNotExist:
+            return None
