@@ -10,7 +10,7 @@ class FileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = File
-        fields = ['id', 'name', 'created', 'owner', 'organization']
+        fields = ['id', 'file', 'created', 'owner', 'organization']
 
     def validate(self, attrs):
         user = self.context['request'].user

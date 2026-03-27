@@ -15,7 +15,8 @@ services:
       - DATABASE_HOST=db
       - DATABASE_PORT=5432
     depends_on:
-      - db
+      db:
+          condition: service_healthy
   db:
     image: postgres:13
     environment:
@@ -26,6 +27,10 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U file_storage_app_user -d file_storage_app -h db"]
+      interval: 5s
+      retries: 5
 
 volumes:
   postgres_data:
