@@ -2,27 +2,24 @@
 
 This is an application for storing files. Users that are assigned to organizations may share files and users from other organizations may download them. Downloads are recorded and fetchable by user and file. Also organization download counts are available.
 
-## How to run and test the application
+## How to Run and Test the Application
 
 Build and run the docker compose:
 
 ```docker compose up```
 
 Once up, the API will be available at ```127.0.0.1:8000```.
-
-Then migrate:
+Then migrate the database:
 
 ```docker compose run web python manage.py migrate```
 
-Create a user (or multiple) to log in
+Create a superuser to log in to the admin backoffice. A default organization is created for you.
 
 ```docker compose run web python manage.py createsuperuser```
 
-Create `organization`s in the admin backoffice in ```127.0.0.1:8000/admin/```
-
-Connect the organizations to users with `organization user`s.
-
-Once you are logged in with a user account that is in an organization, you may upload, fetch and download files and other data.
+Once created, log in to admin backoffice in ```127.0.0.1:8000/admin/```
+Here you may edit the users and organizations.
+While you are logged in, you may upload, fetch and download files and other data.
 
 You may always run the test suite with:
 ```docker compose run web python manage.py test```
@@ -48,14 +45,13 @@ To fetch all downloads per user:
 GET ```/downloads/user/<user-id>```
 
 To fetch all downloads per file:
-GET ```/downloads/file/<file_id>```
+GET ```/downloads/file/<file-id>```
 
 Django Admin Backoffice:
 ```/admin/*```
 
 Django REST Framework urls:
 ```/api-auth/*```
-
 
 ## Cheat Sheet for Development
 

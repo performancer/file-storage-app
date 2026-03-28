@@ -3,19 +3,19 @@ from rest_framework.parsers import FormParser, MultiPartParser
 
 from files.models import File
 from files.serializers import FileSerializer
-from organizations.permissions import IsInOrganization
 
 
 class FileList(generics.ListCreateAPIView):
     queryset = File.objects.all()
     serializer_class = FileSerializer
-    permission_classes = [permissions.IsAuthenticated, IsInOrganization]
+    permission_classes = [permissions.IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
     def perform_create(self, serializer: FileSerializer):
-        serializer.save(owner=self.request.user)
+        serializer.save(owner=self.request.user, organization=self.request.user.organization)
+
 
 class FileDetail(generics.RetrieveAPIView):
     queryset = File.objects.all()
     serializer_class = FileSerializer
-    permission_classes = [permissions.IsAuthenticated, IsInOrganization]
+    permission_classes = [permissions.IsAuthenticated]

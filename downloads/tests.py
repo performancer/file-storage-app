@@ -5,25 +5,33 @@ from rest_framework.test import APIClient, APITestCase
 from downloads.models import Download
 from files.tests import FileTestingHelper
 from organizations.models import Organization
-from users.models import OrganizationUser
 
 User = get_user_model()
+
 
 # The users should ... be able to download any of the uploaded files from any organization.
 class TestDownload(APITestCase):
     def setUp(self):
-        # populate users
-        self.uploading_user = User.objects.create_user(username='uploading_user', password='password123')
-        self.user_in_same_org = User.objects.create_user(username='user_in_same_org', password='password123')
-        self.user_in_external_org = User.objects.create_user(username='user_in_external_org', password='password123')
-        self.user_without_org = User.objects.create_user(username='user_without_org', password='password123')
-
         # populate the organizations
-        self.organization_a = Organization.objects.create(name='organization_a')
-        self.organization_b = Organization.objects.create(name='organization_b')
-        OrganizationUser.objects.create(user=self.uploading_user, organization=self.organization_a)
-        OrganizationUser.objects.create(user=self.user_in_same_org, organization=self.organization_a)
-        OrganizationUser.objects.create(user=self.user_in_external_org, organization=self.organization_b)
+        organization_a = Organization.objects.create(name='organization_a')
+        organization_b = Organization.objects.create(name='organization_b')
+
+        # populate users
+        self.uploading_user = User.objects.create_user(
+            username='uploading_user',
+            password='password123',
+            organization=organization_a,
+        )
+        self.user_in_same_org = User.objects.create_user(
+            username='user_in_same_org',
+            password='password123',
+            organization=organization_a,
+        )
+        self.user_in_external_org = User.objects.create_user(
+            username='user_in_external_org',
+            password='password123',
+            organization=organization_b,
+        )
 
         # prepare the api
         self.client = APIClient()
@@ -51,22 +59,17 @@ class TestDownload(APITestCase):
         response = self.client.get(self.download_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_download_as_user_without_org(self):
-        self.client.login(username=self.user_without_org.username, password='password123')
-        response = self.client.get(self.download_url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
     def test_download_as_anonymous_user(self):
         response = self.client.get(self.download_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
 
 # Each download should be recorded
 class TestDownloadsRecording(APITestCase):
     def setUp(self):
         # populate users and organizations
-        self.user = User.objects.create_user(username='user_a', password='password123')
         self.organization = Organization.objects.create(name='organization_a')
-        OrganizationUser.objects.create(user=self.user, organization=self.organization)
+        self.user = User.objects.create_user(username='user_a', password='password123', organization=self.organization)
 
         # prepare the api
         self.client = APIClient()
@@ -105,14 +108,12 @@ class TestDownloadsRecording(APITestCase):
 # Endpoint for listing all downloads (file, timestamp) done by a single user.
 class TestDownloadsPerUser(APITestCase):
     def setUp(self):
-        # populate users
-        self.user_a = User.objects.create_user(username='user_a', password='password123')
-        self.user_b = User.objects.create_user(username='user_b', password='password123')
-
         # populate the organizations
-        self.organization_a = Organization.objects.create(name='organization_a')
-        OrganizationUser.objects.create(user=self.user_a, organization=self.organization_a)
-        OrganizationUser.objects.create(user=self.user_b, organization=self.organization_a)
+        organization = Organization.objects.create(name='organization')
+
+        # populate users
+        self.user_a = User.objects.create_user(username='user_a', password='password123', organization=organization)
+        self.user_b = User.objects.create_user(username='user_b', password='password123', organization=organization)
 
         # prepare the api
         self.client = APIClient()
@@ -125,6 +126,10 @@ class TestDownloadsPerUser(APITestCase):
         )
         self.download_url = f'/download/{self.uploaded_file_id}'
         self.downloads_per_user_url = f'/downloads/user/{self.user_a.id}'
+
+    def test_anonymous_user(self):
+        response = self.client.get(self.downloads_per_user_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_no_downloads(self):
         self.client.login(username=self.user_a.username, password='password123')
@@ -165,17 +170,16 @@ class TestDownloadsPerUser(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
 
+
 # Endpoint for listing all downloads (user, timestamp) for a single file
 class TestDownloadsPerFile(APITestCase):
     def setUp(self):
-        # populate users
-        self.user_a = User.objects.create_user(username='user_a', password='password123')
-        self.user_b = User.objects.create_user(username='user_b', password='password123')
-
         # populate the organizations
-        self.organization_a = Organization.objects.create(name='organization_a')
-        OrganizationUser.objects.create(user=self.user_a, organization=self.organization_a)
-        OrganizationUser.objects.create(user=self.user_b, organization=self.organization_a)
+        organization = Organization.objects.create(name='organization')
+
+        # populate users
+        self.user_a = User.objects.create_user(username='user_a', password='password123', organization=organization)
+        self.user_b = User.objects.create_user(username='user_b', password='password123', organization=organization)
 
         # prepare the api
         self.client = APIClient()
@@ -188,6 +192,10 @@ class TestDownloadsPerFile(APITestCase):
         )
         self.download_url = f'/download/{self.uploaded_file_id}'
         self.downloads_per_file_url = f'/downloads/file/{self.uploaded_file_id}'
+
+    def test_anonymous_user(self):
+        response = self.client.get(self.downloads_per_file_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_no_downloads(self):
         self.client.login(username=self.user_a.username, password='password123')

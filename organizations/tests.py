@@ -5,31 +5,30 @@ from rest_framework.test import APIClient
 
 from files.tests import FileTestingHelper
 from organizations.models import Organization
-from users.models import OrganizationUser
 
 User = get_user_model()
+
 
 # Endpoint for listing all organizations
 class TestOrganizationList(TestCase):
     def setUp(self):
-        # populate the users
-        self.user = User.objects.create_user(username='user', password='password123')
-
         # prepare the api
         self.client = APIClient()
         self.organizations_url = '/organizations/'
 
-        self.client.login(username=self.user.username, password='password123')
-
-    def test_no_organizations(self):
+    def test_anonymous_user(self):
+        # create organization
+        organization_a = Organization.objects.create(name='organization_a')
         response = self.client.get(self.organizations_url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, [])
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_one_organization(self):
         # create organization
         organization_a = Organization.objects.create(name='organization_a')
-        OrganizationUser.objects.create(user=self.user, organization=organization_a)
+
+        # create and log in a user
+        self.user = User.objects.create_user(username='user', password='password123', organization=organization_a)
+        self.client.login(username=self.user.username, password='password123')
 
         # check the organizations endpoint
         response = self.client.get(self.organizations_url)
@@ -46,6 +45,10 @@ class TestOrganizationList(TestCase):
         organization_a = Organization.objects.create(name='organization_a')
         organization_b = Organization.objects.create(name='organization_b')
 
+        # create and log in a user
+        self.user = User.objects.create_user(username='user', password='password123', organization=organization_a)
+        self.client.login(username=self.user.username, password='password123')
+
         # check the organizations endpoint
         response = self.client.get(self.organizations_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -61,17 +64,26 @@ class TestOrganizationList(TestCase):
 # ... including the total download count per organization
 class TestOrganizationDownloads(TestCase):
     def setUp(self):
-        # populate users
-        self.uploading_user = User.objects.create_user(username='uploading_user', password='password123')
-        self.user_in_same_org = User.objects.create_user(username='user_in_same_org', password='password123')
-        self.user_in_external_org = User.objects.create_user(username='user_in_external_org', password='password123')
-
         # populate the organizations
         self.organization_a = Organization.objects.create(name='organization_a')
         self.organization_b = Organization.objects.create(name='organization_b')
-        OrganizationUser.objects.create(user=self.uploading_user, organization=self.organization_a)
-        OrganizationUser.objects.create(user=self.user_in_same_org, organization=self.organization_a)
-        OrganizationUser.objects.create(user=self.user_in_external_org, organization=self.organization_b)
+
+        # populate users
+        self.uploading_user = User.objects.create_user(
+            username='uploading_user',
+            password='password123',
+            organization=self.organization_a,
+        )
+        self.user_in_same_org = User.objects.create_user(
+            username='user_in_same_org',
+            password='password123',
+            organization=self.organization_a,
+        )
+        self.user_in_external_org = User.objects.create_user(
+            username='user_in_external_org',
+            password='password123',
+            organization=self.organization_b,
+        )
 
         # prepare the api
         self.client = APIClient()

@@ -4,7 +4,6 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from files.models import File
-from users.models import OrganizationUser
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -28,14 +27,3 @@ class FileSerializer(serializers.ModelSerializer):
 
     def get_download_count(self, obj: File) -> int:
         return obj.downloads.count()
-
-    def validate(self, attrs: dict) -> dict:
-        user = self.context['request'].user
-
-        try:
-            org_user = OrganizationUser.objects.get(user=user)
-        except OrganizationUser.DoesNotExist:
-            raise serializers.ValidationError('You must belong to an organization to upload a file.')
-
-        attrs['organization'] = org_user.organization
-        return attrs

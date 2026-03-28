@@ -2,9 +2,11 @@ import uuid
 
 from django.db import models
 
+from file_storage_app import settings
 from organizations.models import Organization
 
 
+# let's put the downloaded media to /media folder in project root
 def upload_path(instance, filename: str) -> str:
     ext = filename.split('.')[-1]
     return f'media/organizations/{instance.organization.id}/{instance.owner.id}/{uuid.uuid4()}.{ext}'
@@ -14,11 +16,11 @@ class File(models.Model):
     id = models.BigAutoField(primary_key=True)
     created = models.DateTimeField(auto_now_add=True)
     file = models.FileField(upload_to=upload_path)
-    owner = models.ForeignKey('auth.User', related_name='files', on_delete=models.CASCADE)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='files', on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, related_name='files', on_delete=models.CASCADE)
 
     class Meta:
-        ordering = ['created']
+        ordering = ['-created']  # latest first
 
     def __str__(self):
         return f"{self.file}"

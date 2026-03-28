@@ -10,4 +10,4 @@ class DownloadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Download
-        fields = [ 'file', 'downloaded_at', 'user', 'organization']
+        fields = ['file', 'downloaded_at', 'user', 'organization']
