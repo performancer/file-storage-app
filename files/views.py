@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions
+from rest_framework import generics
 from rest_framework.parsers import FormParser, MultiPartParser
 
 from files.models import File
@@ -8,7 +8,6 @@ from files.serializers import FileSerializer
 class FileList(generics.ListCreateAPIView):
     queryset = File.objects.all()
     serializer_class = FileSerializer
-    permission_classes = [permissions.IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
     def perform_create(self, serializer: FileSerializer):
@@ -18,4 +17,3 @@ class FileList(generics.ListCreateAPIView):
 class FileDetail(generics.RetrieveAPIView):
     queryset = File.objects.all()
     serializer_class = FileSerializer
-    permission_classes = [permissions.IsAuthenticated]

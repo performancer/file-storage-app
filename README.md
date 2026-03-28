@@ -24,6 +24,8 @@ While you are logged in, you may upload, fetch and download files and other data
 You may always run the test suite with:
 ```docker compose run web python manage.py test```
 
+I left the debug setting on for you.
+
 ## Endpoints to Explore
 
 To upload a file:

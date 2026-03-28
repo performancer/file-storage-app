@@ -125,6 +125,22 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Django REST Framework settings
+REST_FRAMEWORK = {
+    # https://www.django-rest-framework.org/api-guide/authentication/#setting-the-authentication-scheme
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    # https://www.django-rest-framework.org/api-guide/permissions/#setting-the-permission-policy
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
+# The overriding user model of the built-in user
+
 AUTH_USER_MODEL = 'users.User'
+
+# Default organization name used in initialization of the project ( when making superuser )
 
 DEFAULT_ORGANIZATION_NAME = 'Default Organization'
